@@ -1,0 +1,15 @@
+version: '3'
+services:
+  sqlite:
+    container_name: sqlite-container
+    image: nouchka/sqlite3:latest
+    stdin_open: true
+    tty: true
+    volumes:
+      - sqlite-data:/client-server-api
+    ports:
+      - "5432:5432"
+    restart: always
+
+volumes:
+  sqlite-data:
