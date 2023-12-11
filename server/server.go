@@ -1,7 +1,11 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
 )
 
 type Cotation struct {
@@ -28,5 +32,30 @@ func main() {
 }
 
 func FindCotationHandler(w http.ResponseWriter, r *http.Request) {
+	cotation, err := FindCotation()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(cotation)
+}
 
+func FindCotation() (*Cotation, error) {
+	req, err := http.Get("https://economia.awesomeapi.com.br/json/last/USD-BRL")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Erro ao fazer a requisição: %v\n", err)
+	}
+	defer req.Body.Close()
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Erro ao ler a resposta: %v\n", err)
+	}
+	var cotation Cotation
+	err = json.Unmarshal(body, &cotation)
+	if err != nil {
+		return nil, err
+	}
+	return &cotation, nil
 }
