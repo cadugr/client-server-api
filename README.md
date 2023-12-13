@@ -1,6 +1,6 @@
 # Go client-server-api
 
-[![Go Reference](https://pkg.go.dev/badge/golang.org/x/example.svg)](https://pkg.go.dev/golang.org/x/example)
+[![Go Reference](https://pkg.go.dev/badge/golang.org/x/example.svg)](https://go.dev)
 
 This repository contains the solution to the first Go Expert postgraduate challenge.
 
