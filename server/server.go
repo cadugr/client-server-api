@@ -13,7 +13,7 @@ import (
 
 const database string = "client-server-api.db"
 
-type Cambio struct {
+type Exchange struct {
 	Cotation Cotation `json:"USDBRL"`
 }
 
@@ -41,7 +41,7 @@ func FindCotationHandler(w http.ResponseWriter, r *http.Request) {
 	cambio, err := FindCotation()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Erro ao buscar as cotações."))
+		w.Write([]byte("Error to find cotation."))
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -49,7 +49,7 @@ func FindCotationHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(cambio)
 }
 
-func FindCotation() (*Cambio, error) {
+func FindCotation() (*Exchange, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
 	ctxDatabase, cancelDatabase := context.WithTimeout(context.Background(), 10*time.Millisecond)
@@ -68,38 +68,41 @@ func FindCotation() (*Cambio, error) {
 	if err != nil {
 		panic(err)
 	}
-	var cambio Cambio
-	err = json.Unmarshal(body, &cambio)
+	var exchange Exchange
+	err = json.Unmarshal(body, &exchange)
 	if err != nil {
 		return nil, err
 	}
 
-	InsertCotation(ctxDatabase, cambio)
+	InsertCotation(ctxDatabase, exchange)
 
-	return &cambio, nil
+	return &exchange, nil
 }
 
-func InsertCotation(context context.Context, cambio Cambio) {
-	db, err := CriaConexao()
+func InsertCotation(context context.Context, exchange Exchange) {
+	db, err := CreateConection()
 	if err != nil {
 		panic(err)
 	}
-	db.Create(&Cotation{
-		Code:       cambio.Cotation.Code,
-		Codein:     cambio.Cotation.Codein,
-		Name:       cambio.Cotation.Name,
-		High:       cambio.Cotation.High,
-		Low:        cambio.Cotation.Low,
-		VarBid:     cambio.Cotation.VarBid,
-		PctChange:  cambio.Cotation.PctChange,
-		Bid:        cambio.Cotation.Bid,
-		Ask:        cambio.Cotation.Ask,
-		Timestamp:  cambio.Cotation.Timestamp,
-		CreateDate: cambio.Cotation.CreateDate,
-	}).WithContext(context)
+	if err := db.WithContext(context).Create(&Cotation{
+		Code:       exchange.Cotation.Code,
+		Codein:     exchange.Cotation.Codein,
+		Name:       exchange.Cotation.Name,
+		High:       exchange.Cotation.High,
+		Low:        exchange.Cotation.Low,
+		VarBid:     exchange.Cotation.VarBid,
+		PctChange:  exchange.Cotation.PctChange,
+		Bid:        exchange.Cotation.Bid,
+		Ask:        exchange.Cotation.Ask,
+		Timestamp:  exchange.Cotation.Timestamp,
+		CreateDate: exchange.Cotation.CreateDate,
+	}).Error; err != nil {
+		panic(err.Error())
+	}
+
 }
 
-func CriaConexao() (*gorm.DB, error) {
+func CreateConection() (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open(database), &gorm.Config{})
 	if err != nil {
 		return nil, err

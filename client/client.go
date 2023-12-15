@@ -31,24 +31,24 @@ func main() {
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Erro ao ler a resposta: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error reading response: %v\n", err)
 	}
 	var cotation Cotation
 
 	err = json.Unmarshal(body, &cotation)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Erro ao fazer parse da resposta: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error parsing the response: %v\n", err)
 	}
 
 	file, err := os.Create("cotacao.txt")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Erro ao Criar o arquivo: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error to create file: %v\n", err)
 	}
 	defer file.Close()
 	_, err = file.WriteString(fmt.Sprintf("Dólar: %s", cotation.Usdbrl.Bid))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Erro ao escrever no arquivo: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error writing to file: %v\n", err)
 	}
 
-	fmt.Println("Arquivo criado com sucesso!")
+	fmt.Println("File created successfully!")
 }
