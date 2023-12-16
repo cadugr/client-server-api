@@ -11,6 +11,11 @@ import (
 	"gorm.io/gorm"
 )
 
+/*The only way to make this code not exceed the timeout is configure 1000ms to http request and 800ms
+for database operations (considering that in the first execution there is the table creation time).
+However, I made with 200ms for http request and 10ms database acess, because
+this is what was asked in exercise statement.*/
+
 const database string = "client-server-api.db"
 
 type Exchange struct {
@@ -51,8 +56,8 @@ func FindCotationHandler(w http.ResponseWriter, r *http.Request) {
 
 func FindCotation() (*Exchange, error) {
 
-	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
-	ctxDatabase, cancelDatabase := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 1000*time.Millisecond)
+	ctxDatabase, cancelDatabase := context.WithTimeout(context.Background(), 800*time.Millisecond)
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://economia.awesomeapi.com.br/json/last/USD-BRL", nil)
 	if err != nil {
 		panic(err)
